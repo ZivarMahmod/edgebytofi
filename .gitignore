@@ -5,6 +5,9 @@
 !assets/**/*.png
 !assets/**/*.jpg
 
+# Tooling caches
+.wrangler/
+
 # OS / editor
 .DS_Store
 Thumbs.db
