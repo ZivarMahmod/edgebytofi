@@ -1,0 +1,4 @@
+worker/
+wrangler.toml
+.assetsignore
+2-Byggplan/

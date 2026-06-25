@@ -1,55 +1,49 @@
-/* EDGE by Tofi — /api/rating
-   Cloudflare Pages Function. Hämtar betyg + antal från Bokadirekt,
-   cachar på edgen (Cache API, ~12h soft TTL, stale-while-revalidate),
-   exponerar JSON. Failar aldrig mot klienten — fallback 5,0 / 12.
+/* EDGE by Tofi — /api/rating (Cloudflare Pages Function)
+   Läser betyget ur KV (RATING_KV/"rating"), som skrivs av rating-cron-Workern
+   varje morgon. Tomt/ogiltigt KV → engångshämtning från Bokadirekt + skriv KV.
+   Saknad binding eller annat fel → fallback 5,0 / 12. Svarar ALDRIG 500.
 */
 
 const SOURCE_URL = 'https://www.bokadirekt.se/places/edge-by-tofi-136651';
-const STORE_TTL  = 604800; // caches.default-retention, 7 dygn
-const SOFT_TTL   = 43200;  // 12h: äldre än så → bakgrundsuppdatering
-const CLIENT_TTL = 3600;   // webbläsare/edge-cache av /api/rating, 1h
-const FALLBACK   = { rating: 5.0, count: 12, source: 'fallback' };
-const CACHE_KEY  = new Request('https://rating.internal/edgebytofi', { method: 'GET' });
+const KV_KEY = 'rating';
+const FALLBACK = { rating: 5.0, count: 12, source: 'fallback' };
 
 export async function onRequestGet(context) {
-  const cache = caches.default;
-
-  const hit = await cache.match(CACHE_KEY);
-  if (hit) {
-    let data = null;
-    try { data = await hit.json(); } catch { /* corrupt entry → behandla som miss */ }
-    if (data) {
-      const age = (Date.now() - Date.parse(data.updated || 0)) / 1000;
-      if (!Number.isFinite(age) || age > SOFT_TTL) {
-        context.waitUntil(revalidate(cache)); // stale-while-revalidate
+  const { env, waitUntil } = context;
+  try {
+    if (env && env.RATING_KV) {
+      const raw = await env.RATING_KV.get(KV_KEY);
+      const data = raw ? safeParse(raw) : null;
+      if (data && typeof data.rating === 'number' && Number.isInteger(data.count)) {
+        return json({ rating: data.rating, count: data.count, source: 'kv', updated: data.updated }, 600);
       }
-      return clientResponse(data, 'HIT');
+      // KV tomt/ogiltigt (t.ex. före första cron-passet) → engångshämtning
+      try {
+        const parsed = await scrape();
+        const fresh = { rating: parsed.rating, count: parsed.count, updated: new Date().toISOString() };
+        const put = env.RATING_KV.put(KV_KEY, JSON.stringify(fresh));
+        if (waitUntil) waitUntil(put); else await put;
+        return json({ ...fresh, source: 'bokadirekt' }, 600);
+      } catch { /* faller igenom till fallback */ }
     }
-  }
-
-  // Cache-miss → hämta synkront
-  const data = await load(cache);
-  return clientResponse(data, data.source === 'fallback' ? 'MISS-FALLBACK' : 'MISS');
+  } catch { /* faller igenom till fallback */ }
+  return json({ ...FALLBACK, updated: new Date().toISOString() }, 60);
 }
 
-async function load(cache) {
-  try {
-    const data = await scrape();
-    await cache.put(CACHE_KEY, storeResponse(data));
-    return data;
-  } catch {
-    // Cacha INTE fallback — nästa anrop ska försöka hämta på nytt.
-    return { ...FALLBACK, updated: new Date().toISOString() };
-  }
+function json(obj, sMaxAge) {
+  const maxAge = sMaxAge > 300 ? 300 : sMaxAge;
+  return new Response(JSON.stringify(obj), {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': `public, max-age=${maxAge}, s-maxage=${sMaxAge}`,
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
 }
 
-async function revalidate(cache) {
-  try {
-    const data = await scrape();
-    await cache.put(CACHE_KEY, storeResponse(data));
-  } catch { /* behåll befintlig cache vid fel */ }
-}
+function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
 
+// ---- Engångshämtning från Bokadirekt (samma parse som Workern) ----
 async function scrape() {
   const res = await fetch(SOURCE_URL, {
     headers: {
@@ -64,16 +58,16 @@ async function scrape() {
   const parsed = parseJsonLd(html) || parseRegex(html);
   if (!parsed || isNaN(parsed.rating)) throw new Error('no rating parsed');
   const count = (parsed.count != null && !isNaN(parsed.count)) ? parsed.count : FALLBACK.count;
-  return { rating: parsed.rating, count, source: 'bokadirekt', updated: new Date().toISOString() };
+  return { rating: parsed.rating, count };
 }
 
 function parseJsonLd(html) {
   const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
-    let json;
-    try { json = JSON.parse(m[1].trim()); } catch { continue; }
-    const ar = findAggregate(json);
+    let data;
+    try { data = JSON.parse(m[1].trim()); } catch { continue; }
+    const ar = findAggregate(data);
     if (ar && ar.ratingValue != null) {
       const rating = parseFloat(String(ar.ratingValue).replace(',', '.'));
       const raw = ar.reviewCount != null ? ar.reviewCount : ar.ratingCount;
@@ -111,24 +105,4 @@ function parseRegex(html) {
   }
   if (isNaN(rating)) return null;
   return { rating, count };
-}
-
-function storeResponse(data) {
-  return new Response(JSON.stringify(data), {
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': `public, s-maxage=${STORE_TTL}`,
-    },
-  });
-}
-
-function clientResponse(data, cacheState) {
-  return new Response(JSON.stringify(data), {
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': `public, max-age=${CLIENT_TTL}`,
-      'X-Rating-Cache': cacheState,
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
 }
