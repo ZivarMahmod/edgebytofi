@@ -1,4 +1,4 @@
-/* Tofifi Cut and Trim — main.js
+/* EDGE by Tofi — main.js
    Vanilla JS. Hero slideshow, sticky header, mobile menu, scroll reveal.
    Respects prefers-reduced-motion.
 */
