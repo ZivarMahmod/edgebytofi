@@ -160,7 +160,7 @@
     if (!('IntersectionObserver' in window)) return;
 
     const targets = document.querySelectorAll(
-      '.section-head, .service, .about-media, .about-text, .plats-info, .plats-map, .cta-wrap'
+      '.section-head, .menu-group, .about-media, .about-text, .plats-info, .plats-map, .cta-wrap'
     );
     if (!targets.length) return;
 
