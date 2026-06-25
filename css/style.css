@@ -790,19 +790,20 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
 /* ---------- Footer ---------- */
 .site-footer {
-  background: #0F0C09;
-  color: var(--cream-soft);
+  background: var(--paper-2);
+  color: var(--ink-soft);
   padding-top: clamp(3rem, 6vw, 5rem);
+  border-top: 1px solid var(--hair);
 }
 .footer-grid {
   display: grid;
   grid-template-columns: 1.5fr repeat(3, 1fr);
   gap: 2rem;
   padding-bottom: 3rem;
-  border-bottom: 1px solid rgba(244, 236, 222, 0.1);
+  border-bottom: 1px solid var(--hair);
 }
 .footer-wordmark {
-  color: var(--cream);
+  color: var(--ink);
   font-size: 1.15rem;
   margin-bottom: .6rem;
 }
@@ -816,11 +817,11 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   font-size: .65rem;
   letter-spacing: .35em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brass-ink);
   margin-bottom: .75rem;
 }
 .footer-col p { line-height: 1.7; }
-.footer-col a:hover { color: var(--gold); }
+.footer-col a:hover { color: var(--brass-ink); }
 .footer-base {
   display: flex;
   justify-content: space-between;
@@ -833,7 +834,6 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   text-transform: uppercase;
   color: var(--muted);
 }
-.footer-fineprint { color: var(--muted); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
