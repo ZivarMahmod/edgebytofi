@@ -193,6 +193,33 @@
     }, 2500);
   }
 
+  // ---- Live rating (Bokadirekt via /api/rating) ----
+  // Progressiv uppdatering. HTML-defaulten (5,0 / 12) står kvar om
+  // endpointen saknas/failar — rör aldrig DOM utan giltiga siffror.
+  function setupLiveRating() {
+    const valEl = document.querySelector('[data-rating-value]');
+    const cntEl = document.querySelector('[data-rating-count]');
+    if (!valEl && !cntEl) return;
+
+    fetch('/api/rating', { headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((d) => {
+        if (!d || typeof d !== 'object') return;
+        if (valEl && typeof d.rating === 'number' && isFinite(d.rating)) {
+          const s = d.rating.toFixed(1).replace('.', ',');
+          if (valEl.textContent !== s) valEl.textContent = s;
+        }
+        if (cntEl && Number.isInteger(d.count) && d.count > 0) {
+          const s = String(d.count);
+          if (cntEl.textContent !== s) cntEl.textContent = s;
+        }
+      })
+      .catch((err) => {
+        // Tyst: behåll HTML-default. Inga konsolfel.
+        if (window.console && console.debug) console.debug('rating skipped', err);
+      });
+  }
+
   // ---- Init ----
   function init() {
     hydrateBokaLinks();
@@ -200,6 +227,7 @@
     setupMobileMenu();
     setupHero();
     setupScrollReveal();
+    setupLiveRating();
   }
 
   if (document.readyState === 'loading') {
