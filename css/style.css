@@ -402,7 +402,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   font-size: var(--step--1);
   letter-spacing: .36em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brass-line);
   margin-bottom: 1.5rem;
   opacity: 0;
   transform: translateY(8px);
@@ -484,7 +484,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   min-width: auto;
 }
 .hero-dot.is-active {
-  background: var(--gold);
+  background: var(--brass-line);
   width: 40px;
 }
 
