@@ -756,19 +756,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
 /* ---------- CTA section ---------- */
 .section-cta {
-  background: var(--almost-black);
-  color: var(--cream);
-  position: relative;
-  overflow: hidden;
-}
-.section-cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(200, 165, 92, 0.18), transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(176, 122, 78, 0.15), transparent 55%);
-  pointer-events: none;
+  background: var(--paper-2);
+  color: var(--ink);
 }
 .cta-wrap {
   position: relative;
@@ -782,19 +771,19 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   text-transform: uppercase;
   line-height: .95;
   margin-block: 1.5rem 1.8rem;
-  color: var(--cream);
+  color: var(--ink);
 }
 .cta-heading em {
   font-family: var(--font-body);
   font-style: italic;
   text-transform: none;
   letter-spacing: -0.01em;
-  color: var(--gold);
+  color: var(--brass-ink);
 }
 .cta-sub {
   font-style: italic;
   font-size: var(--step-1);
-  color: var(--cream-soft);
+  color: var(--ink-soft);
   max-width: 36ch;
   margin: 0 auto 2.5rem;
 }
