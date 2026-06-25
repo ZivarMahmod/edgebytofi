@@ -8,7 +8,7 @@
 
   // BOKA-DIREKT-URL: hydrate all [data-boka] links at load.
   // Change this constant when the salon's real Boka Direkt URL is known.
-  const BOKA_URL = 'https://www.bokadirekt.se/';
+  const BOKA_URL = 'https://www.bokadirekt.se/places/edge-by-tofi-136651';
 
   const prefersReducedMotion = window.matchMedia(
     '(prefers-reduced-motion: reduce)'
