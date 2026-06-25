@@ -6,17 +6,30 @@
 
 /* ---------- Tokens ---------- */
 :root {
-  /* Warm palette — cream / sand / caramel / near-black / gold */
-  --cream:        #F4ECDE;
-  --cream-soft:   #F9F3E7;
-  --sand:         #E4D3B8;
-  --caramel:      #B07A4E;
-  --caramel-deep: #8C5A35;
-  --gold:         #C8A55C;
-  --ink:          #2A1F18;
-  --ink-soft:     #4A3A2E;
+  /* Light brass palette — warm off-white paper, single brass accent */
+  --paper:      #F4F1EA;   /* sidans bas, varmt off-white */
+  --paper-2:    #EEEADF;   /* alternerande sektion / kort / CTA / footer */
+  --ink:        #1A1714;   /* primär text + rubriker */
+  --ink-soft:   #5A5247;   /* brödtext / sekundär */
+  --muted:      #6B645A;   /* små etiketter, beskrivningar */
+  --brass:      #A8772E;   /* solid accent: knappar, fyllningar */
+  --brass-ink:  #8A6520;   /* accenttext på papper */
+  --brass-line: #C9A45E;   /* dekorativ linje / hover-leader */
+  --hair:       #DDD6C8;   /* sektionslinjer */
+  --hair-soft:  #E6E0D2;   /* radlinjer i menyn */
+  --leader:     #C7BFAE;   /* prickad leader-linje */
+  --on-brass:   #F8F4EC;   /* text på mässing */
+
+  /* Retiring cream-palette names — aliased to nearest brass token.
+     --almost-black kept real for deliberately-dark elements (hero,
+     skip-link, mobile panel). Unused aliases removed in F9. */
   --almost-black: #15110D;
-  --muted:        #7A6A5C;
+  --cream:        var(--on-brass);
+  --cream-soft:   var(--on-brass);
+  --sand:         var(--paper-2);
+  --caramel:      var(--brass-ink);
+  --caramel-deep: var(--brass-ink);
+  --gold:         var(--brass-line);
 
   /* Typography */
   --font-display: "Tenor Sans", "Trajan Pro", serif;
@@ -53,7 +66,7 @@ body {
   font-size: var(--step-0);
   line-height: 1.55;
   color: var(--ink);
-  background: var(--cream);
+  background: var(--paper);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -66,7 +79,7 @@ ul, ol { list-style: none; margin: 0; padding: 0; }
 p { margin: 0; }
 h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
-::selection { background: var(--caramel); color: var(--cream); }
+::selection { background: var(--brass); color: var(--on-brass); }
 
 .wrap {
   width: 100%;
@@ -114,7 +127,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(244, 236, 222, 0);
+  background: rgba(244, 241, 234, 0);
   transition: background var(--t-fast) var(--ease),
               backdrop-filter var(--t-fast) var(--ease),
               padding var(--t-fast) var(--ease),
@@ -122,10 +135,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   border-bottom: 1px solid transparent;
 }
 .site-header.is-scrolled {
-  background: rgba(244, 236, 222, 0.92);
+  background: rgba(244, 241, 234, 0.9);
   backdrop-filter: blur(14px) saturate(1.1);
   -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  border-bottom-color: rgba(42, 31, 24, 0.08);
+  border-bottom-color: var(--hair);
 }
 .header-wrap {
   display: flex;
@@ -210,13 +223,13 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   cursor: pointer;
 }
 .btn-primary {
-  background: var(--almost-black);
-  color: var(--cream);
+  background: var(--brass);
+  color: var(--on-brass);
 }
 .btn-primary:hover,
 .btn-primary:focus-visible {
-  background: var(--caramel-deep);
-  color: var(--cream);
+  background: var(--brass-ink);
+  color: var(--on-brass);
 }
 .btn-ghost {
   background: transparent;
@@ -537,8 +550,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
 /* ---------- Services ---------- */
 .section-services {
-  background:
-    linear-gradient(180deg, var(--cream) 0%, var(--cream-soft) 100%);
+  background: var(--paper);
 }
 .service-list {
   border-top: 1px solid rgba(42, 31, 24, 0.18);
@@ -629,7 +641,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
 /* ---------- About ---------- */
 .section-about {
-  background: var(--cream-soft);
+  background: var(--paper-2);
 }
 .about-grid {
   display: grid;
@@ -670,7 +682,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(42, 31, 24, 0.18);
+  border-top: 1px solid var(--hair);
 }
 .about-marks > div {
   display: flex;
@@ -693,7 +705,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 }
 
 /* ---------- Plats ---------- */
-.section-plats { background: var(--cream); }
+.section-plats { background: var(--paper); }
 .plats-grid {
   display: grid;
   grid-template-columns: 1fr 1.25fr;
@@ -705,9 +717,9 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 .plats-info .section-heading { margin-bottom: 2.5rem; }
 .plats-block {
   padding-block: 1.25rem;
-  border-top: 1px solid rgba(42, 31, 24, 0.18);
+  border-top: 1px solid var(--hair);
 }
-.plats-block:last-child { border-bottom: 1px solid rgba(42, 31, 24, 0.18); }
+.plats-block:last-child { border-bottom: 1px solid var(--hair); }
 .plats-label {
   font-family: var(--font-display);
   font-size: .68rem;
@@ -748,7 +760,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 .plats-map iframe {
   width: 100%;
   height: 100%;
-  filter: grayscale(0.55) sepia(0.18) contrast(0.95);
+  filter: grayscale(0.2) sepia(0.08) contrast(0.98);
 }
 
 /* ---------- CTA section ---------- */
