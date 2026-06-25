@@ -112,8 +112,9 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
 /* ---------- Topline ---------- */
 .topline {
-  background: var(--almost-black);
-  color: var(--cream-soft);
+  background: var(--paper-2);
+  color: var(--brass-ink);
+  border-bottom: 1px solid var(--hair);
   text-align: center;
   padding: .55rem var(--gutter);
   font-family: var(--font-display);
