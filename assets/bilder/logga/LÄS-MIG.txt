@@ -1,0 +1,12 @@
+LOGGA (visas uppe till vänster i headern)
+==========================================
+
+Lägg din logga i DENNA mapp och döp den till:  bild.png
+(funkar även: bild.webp, bild.jpg, bild.jpeg)
+
+Finns loggan här → den ersätter texten "EDGE by Tofi" i headern.
+Tar du bort den → texten visas igen.
+
+Tips: PNG eller WEBP med genomskinlig bakgrund ser bäst ut.
+Höjd i headern blir ca 34–48 px, bredden anpassas automatiskt.
+Lägg gärna in en fil som är minst dubbelt så stor (t.ex. 96 px hög) för skärpa.

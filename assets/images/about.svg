@@ -25,7 +25,4 @@
     <ellipse cx="550" cy="1280" rx="240" ry="22"/>
   </g>
   <rect width="1100" height="1400" filter="url(#noiseA)" opacity="0.5"/>
-  <text x="60" y="1360" font-family="'Tenor Sans', monospace" font-size="20" fill="#15110D" letter-spacing="5" opacity="0.85">
-    PLATSHÅLLARE — OM OSS (1100×1400)
-  </text>
 </svg>

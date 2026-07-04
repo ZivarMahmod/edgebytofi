@@ -1,0 +1,10 @@
+BILD FÖR "OM OSS" (stora bilden under tjänster-delen)
+======================================================
+
+Lägg din bild i DENNA mapp och döp den till:  bild.jpg
+(funkar även: bild.jpeg, bild.png, bild.webp)
+
+Sidan byter automatiskt till din bild när den finns här.
+Tar du bort den → sidan visar reserv-grafiken igen.
+
+Rekommenderat format: STÅENDE, ca 1100 x 1400 px (eller större, samma proportion).

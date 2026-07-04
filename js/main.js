@@ -220,6 +220,27 @@
       });
   }
 
+  // ---- Utbytbara bilder ----
+  // Varje [data-img] pekar på en mapp under assets/. Ligger det en
+  // bild.jpg/.jpeg/.png/.webp där byts default-SVG:n ut mot den. Finns
+  // ingen → default står kvar (aldrig trasig bild). Ren drag-and-drop.
+  function setupSwappableImages() {
+    const exts = ['jpg', 'jpeg', 'png', 'webp'];
+    document.querySelectorAll('[data-img]').forEach((img) => {
+      const dir = img.dataset.img; // t.ex. "bilder/slide-1"
+      let i = 0;
+      const tryNext = () => {
+        if (i >= exts.length) return; // behåll default-SVG
+        const url = `assets/${dir}/bild.${exts[i++]}`;
+        const probe = new Image();
+        probe.onload = () => { img.src = url; img.removeAttribute('hidden'); };
+        probe.onerror = tryNext;
+        probe.src = url;
+      };
+      tryNext();
+    });
+  }
+
   // ---- Init ----
   function init() {
     hydrateBokaLinks();
@@ -228,6 +249,7 @@
     setupHero();
     setupScrollReveal();
     setupLiveRating();
+    setupSwappableImages();
   }
 
   if (document.readyState === 'loading') {

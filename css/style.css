@@ -28,7 +28,7 @@
   --gold:         var(--brass-line);
 
   /* Typography */
-  --font-display: "Tenor Sans", "Trajan Pro", serif;
+  --font-display: "Marcellus", "Trajan Pro", serif;
   --font-body:    "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
 
   /* Scale (fluid) */
@@ -168,6 +168,18 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   text-transform: uppercase;
   color: var(--brass-ink);
   padding-left: .12em;
+}
+/* Utbytbar logga: syns bara när assets/bilder/logga/bild.* finns. */
+.wordmark-logo[hidden] { display: none; }
+.wordmark-logo:not([hidden]) {
+  display: block;
+  height: clamp(46px, 6.5vw, 66px);
+  width: auto;
+}
+/* Logga inne → dölj text-wordmarken. */
+.wordmark:has(.wordmark-logo:not([hidden])) .wordmark-name,
+.wordmark:has(.wordmark-logo:not([hidden])) .wordmark-tag {
+  display: none;
 }
 
 /* Primary nav */
@@ -583,19 +595,27 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
   letter-spacing: 0;
   color: var(--brass-ink);
 }
-.menu-leader {
-  flex: 1;
-  border-bottom: 1px dotted var(--leader);
-  transform: translateY(-.3em);
-  transition: border-color .25s var(--ease);
-}
-.menu-item:hover .menu-leader { border-color: var(--brass-line); }
-.menu-price {
-  font-family: var(--font-display);
-  font-size: clamp(.95rem, 2vw, 1.1rem);
-  letter-spacing: .02em;
-  color: var(--ink);
+.menu-boka {
+  margin-left: auto;
+  flex: none;
+  align-self: center;
+  font-family: var(--font-body);
+  font-size: .8rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--brass-ink);
+  text-decoration: none;
+  padding: .32rem .85rem;
+  border: 1px solid var(--brass-line);
+  border-radius: 999px;
   white-space: nowrap;
+  transition: background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease);
+}
+.menu-boka:hover,
+.menu-boka:focus-visible {
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--on-brass);
 }
 .menu-desc {
   font-family: var(--font-body);

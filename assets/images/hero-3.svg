@@ -30,7 +30,4 @@
     <ellipse cx="300" cy="500" rx="80" ry="50"/>
   </g>
   <rect width="1600" height="1000" filter="url(#noise3)" opacity="0.55"/>
-  <text x="80" y="970" font-family="'Tenor Sans', monospace" font-size="22" fill="#C8A55C" letter-spacing="6" opacity="0.85">
-    PLATSHÅLLARE — HERO 3 (1600×1000)
-  </text>
 </svg>

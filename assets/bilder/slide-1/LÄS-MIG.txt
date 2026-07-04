@@ -1,0 +1,10 @@
+BILD FÖR SLIDE 1 (första hero-bilden)
+======================================
+
+Lägg din bild i DENNA mapp och döp den till:  bild.jpg
+(funkar även: bild.jpeg, bild.png, bild.webp)
+
+Sidan byter automatiskt till din bild när den finns här.
+Tar du bort den → sidan visar reserv-grafiken igen.
+
+Rekommenderat format: liggande, ca 1600 x 1000 px (eller större, samma proportion 16:10).
