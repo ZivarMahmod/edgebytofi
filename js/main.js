@@ -241,6 +241,28 @@
     });
   }
 
+  // ---- Läs mer på tjänstebeskrivningar ----
+  // Full Bokadirekt-text ligger i HTML. JS klampar till 2 rader och
+  // visar knappen bara när texten faktiskt är avklippt. Utan JS: full text.
+  function setupMenuReadMore() {
+    document.querySelectorAll('.menu-item').forEach((item) => {
+      const desc = item.querySelector('.menu-desc');
+      const btn = item.querySelector('.menu-more');
+      if (!desc || !btn) return;
+      desc.classList.add('is-clamped');
+      if (desc.scrollHeight <= desc.clientHeight + 1) {
+        desc.classList.remove('is-clamped');
+        return; // ryms redan — ingen knapp
+      }
+      btn.hidden = false;
+      btn.addEventListener('click', () => {
+        const expanded = !desc.classList.toggle('is-clamped');
+        btn.textContent = expanded ? 'Visa mindre' : 'Läs mer';
+        btn.setAttribute('aria-expanded', String(expanded));
+      });
+    });
+  }
+
   // ---- Init ----
   function init() {
     hydrateBokaLinks();
@@ -250,6 +272,7 @@
     setupScrollReveal();
     setupLiveRating();
     setupSwappableImages();
+    setupMenuReadMore();
   }
 
   if (document.readyState === 'loading') {
