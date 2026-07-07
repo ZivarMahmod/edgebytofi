@@ -28,8 +28,8 @@
   --gold:         var(--brass-line);
 
   /* Typography */
-  --font-display: "Marcellus", "Trajan Pro", serif;
-  --font-body:    "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --font-display: "Playfair Display", "Trajan Pro", serif;
+  --font-body:    "Lora", "Iowan Old Style", Georgia, serif;
 
   /* Scale (fluid) */
   --step--1: clamp(0.82rem, 0.78rem + 0.2vw, 0.95rem);
