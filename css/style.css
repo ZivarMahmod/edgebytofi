@@ -419,7 +419,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 }
 .hero-headline {
   font-family: var(--font-display);
-  font-size: var(--step-5);
+  /* vh-tak: längsta rubriken (4 rader) får aldrig bli högre än hero-ytan */
+  font-size: min(var(--step-5), 10vh);
   letter-spacing: .04em;
   text-transform: uppercase;
   line-height: .95;
