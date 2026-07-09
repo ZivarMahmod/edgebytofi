@@ -1,12 +1,14 @@
 /* EDGE by Tofi — /api/rating (Cloudflare Pages Function)
    Läser betyget ur KV (RATING_KV/"rating"), som skrivs av rating-cron-Workern
    varje morgon. Tomt/ogiltigt KV → engångshämtning från Bokadirekt + skriv KV.
-   Svarar även med 3 textrecensioner ur poolen (RATING_KV/"reviews", ackumuleras
-   av Workern) — urvalet roteras deterministiskt var 3:e dag, blandat 4–5 stjärnor.
+   Svarar även med 3 textrecensioner ur poolen (RATING_KV/"reviews" — ALLA
+   textrecensioner, hämtas av Workern via Bokadirekts publika JSON-API) —
+   urvalet roteras deterministiskt var 3:e dag, blandat 4–5 stjärnor.
    Saknad binding eller annat fel → fallback 5,0 / 12 utan recensioner. Svarar ALDRIG 500.
 */
 
 const SOURCE_URL = 'https://www.bokadirekt.se/places/edge-by-tofi-136651';
+const REVIEWS_URL = 'https://www.bokadirekt.se/api/places/reviews/136651';
 const KV_KEY = 'rating';
 const REVIEWS_KEY = 'reviews';
 const MAX_POOL = 40;
@@ -28,7 +30,11 @@ export async function onRequestGet(context) {
         const fresh = { rating: parsed.rating, count: parsed.count, updated: new Date().toISOString() };
         const put = env.RATING_KV.put(KV_KEY, JSON.stringify(fresh));
         if (waitUntil) waitUntil(put); else await put;
-        const pool = await mergeReviews(env, parsed.reviews);
+        let pool = [];
+        try {
+          pool = await fetchReviews();
+          if (pool.length) await env.RATING_KV.put(REVIEWS_KEY, JSON.stringify(pool.slice(0, MAX_POOL)));
+        } catch { /* recensioner är progressivt — betyget räcker */ }
         return json({ ...fresh, ...pickReviews(pool), source: 'bokadirekt' }, 600);
       } catch { /* faller igenom till fallback */ }
     }
@@ -62,20 +68,25 @@ function pickReviews(pool) {
   return { reviews: shuffled.slice(0, 3), reviewsTotal: valid.length };
 }
 
-// Samma merge som Workern — används bara vid engångshämtningen innan
-// första cron-passet, så poolen finns direkt.
-async function mergeReviews(env, fresh) {
-  const raw = await env.RATING_KV.get(REVIEWS_KEY);
-  const pool = (raw && safeParse(raw)) || [];
-  const seen = new Set(pool.map((r) => r.name + '|' + r.date));
-  for (const r of fresh || []) {
-    const key = r.name + '|' + r.date;
-    if (!seen.has(key)) { seen.add(key); pool.push(r); }
+// Alla textrecensioner via Bokadirekts publika JSON-API — samma som Workern.
+// Används bara vid engångshämtningen innan första cron-passet.
+async function fetchReviews() {
+  const res = await fetch(REVIEWS_URL, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0', 'Accept': 'application/json', 'Accept-Language': 'sv-SE' },
+    cf: { cacheTtl: 0 },
+  });
+  if (!res.ok) throw new Error('reviews status ' + res.status);
+  const data = await res.json();
+  const out = [];
+  for (const item of (data && data.reviews) || []) {
+    const r = item && item.review;
+    if (!r) continue;
+    const text = (r.text || '').trim();
+    if (r.score >= 4 && text && r.author) {
+      out.push({ name: r.author, rating: r.score, date: r.createdAt || '', text });
+    }
   }
-  pool.sort((a, b) => (a.date < b.date ? 1 : -1));
-  const capped = pool.slice(0, MAX_POOL);
-  await env.RATING_KV.put(REVIEWS_KEY, JSON.stringify(capped));
-  return capped;
+  return out;
 }
 
 function json(obj, sMaxAge) {
@@ -106,31 +117,7 @@ async function scrape() {
   const parsed = parseJsonLd(html) || parseRegex(html);
   if (!parsed || isNaN(parsed.rating)) throw new Error('no rating parsed');
   const count = (parsed.count != null && !isNaN(parsed.count)) ? parsed.count : FALLBACK.count;
-  return { rating: parsed.rating, count, reviews: parseReviews(html) };
-}
-
-// Textrecensioner ur JSON-LD (LocalBusiness.review). Endast 4–5 stjärnor med text.
-function parseReviews(html) {
-  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-  const out = [];
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    let data;
-    try { data = JSON.parse(m[1].trim()); } catch { continue; }
-    const list = Array.isArray(data) ? data : [data];
-    for (const node of list) {
-      const reviews = node && node.review;
-      if (!Array.isArray(reviews)) continue;
-      for (const r of reviews) {
-        const rating = r && r.reviewRating ? parseFloat(r.reviewRating.ratingValue) : NaN;
-        const text = (r && r.reviewBody || '').trim();
-        const name = r && r.author && r.author.name || '';
-        const date = r && r.datePublished || '';
-        if (rating >= 4 && text && name) out.push({ name, rating, date, text });
-      }
-    }
-  }
-  return out;
+  return { rating: parsed.rating, count };
 }
 
 function parseJsonLd(html) {
