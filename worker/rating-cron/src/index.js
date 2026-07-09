@@ -1,12 +1,17 @@
 /* EDGE by Tofi — rating-cron Worker
    Schemalagt morgonpass (cron 0 4 * * * UTC ≈ 06:00 svensk tid).
    Hämtar betyg + antal från Bokadirekt, skriver till KV (RATING_KV/"rating").
+   Hämtar även senaste textrecensionerna (JSON-LD exponerar de 4 senaste) och
+   ackumulerar dem i en pool (RATING_KV/"reviews") — dedupe på namn+datum,
+   endast 4–5 stjärnor, max 40 st. Poolen växer över tid för varje cron-pass.
    Skriver ALDRIG över ett tidigare giltigt värde med skräp.
    Manuell provkörning: GET ?run=1
 */
 
 const SOURCE_URL = 'https://www.bokadirekt.se/places/edge-by-tofi-136651';
 const KV_KEY = 'rating';
+const REVIEWS_KEY = 'reviews';
+const MAX_POOL = 40;
 const FALLBACK_COUNT = 12;
 
 export default {
@@ -43,9 +48,26 @@ async function refresh(env) {
   };
   if (env.RATING_KV) {
     await env.RATING_KV.put(KV_KEY, JSON.stringify(data));
-    return { ok: true, written: true, data };
+    const pool = await mergeReviews(env, parsed.reviews);
+    return { ok: true, written: true, data, reviewsInPool: pool.length };
   }
   return { ok: true, written: false, reason: 'no RATING_KV binding', data };
+}
+
+// Slå ihop nyskrapade recensioner med poolen i KV. Dedupe på namn+datum,
+// nyaste först, max MAX_POOL.
+async function mergeReviews(env, fresh) {
+  const raw = await env.RATING_KV.get(REVIEWS_KEY);
+  const pool = (raw && safeParse(raw)) || [];
+  const seen = new Set(pool.map((r) => r.name + '|' + r.date));
+  for (const r of fresh || []) {
+    const key = r.name + '|' + r.date;
+    if (!seen.has(key)) { seen.add(key); pool.push(r); }
+  }
+  pool.sort((a, b) => (a.date < b.date ? 1 : -1));
+  const capped = pool.slice(0, MAX_POOL);
+  await env.RATING_KV.put(REVIEWS_KEY, JSON.stringify(capped));
+  return capped;
 }
 
 async function readKv(env) {
@@ -77,7 +99,32 @@ async function scrape() {
   const parsed = parseJsonLd(html) || parseRegex(html);
   if (!parsed || isNaN(parsed.rating)) throw new Error('no rating parsed');
   const count = (parsed.count != null && !isNaN(parsed.count)) ? parsed.count : FALLBACK_COUNT;
-  return { rating: parsed.rating, count };
+  return { rating: parsed.rating, count, reviews: parseReviews(html) };
+}
+
+// Textrecensioner ur JSON-LD (LocalBusiness.review). Endast 4–5 stjärnor
+// med text. Format: { name, rating, date, text }.
+function parseReviews(html) {
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  const out = [];
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    let data;
+    try { data = JSON.parse(m[1].trim()); } catch { continue; }
+    const list = Array.isArray(data) ? data : [data];
+    for (const node of list) {
+      const reviews = node && node.review;
+      if (!Array.isArray(reviews)) continue;
+      for (const r of reviews) {
+        const rating = r && r.reviewRating ? parseFloat(r.reviewRating.ratingValue) : NaN;
+        const text = (r && r.reviewBody || '').trim();
+        const name = r && r.author && r.author.name || '';
+        const date = r && r.datePublished || '';
+        if (rating >= 4 && text && name) out.push({ name, rating, date, text });
+      }
+    }
+  }
+  return out;
 }
 
 function parseJsonLd(html) {

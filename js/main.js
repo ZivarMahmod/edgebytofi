@@ -213,11 +213,67 @@
           const s = String(d.count);
           if (cntEl.textContent !== s) cntEl.textContent = s;
         }
+        renderReviews(d);
       })
       .catch((err) => {
         // Tyst: behåll HTML-default. Inga konsolfel.
         if (window.console && console.debug) console.debug('rating skipped', err);
       });
+  }
+
+  // ---- Kundrecensioner (3 st ur /api/rating, roteras var 3:e dag av API:t) ----
+  // Sektionen är dold tills giltig data finns — inga tomma skelett vid fel.
+  function renderReviews(d) {
+    const wrap = document.querySelector('[data-reviews]');
+    const grid = wrap && wrap.querySelector('.reviews-grid');
+    if (!grid || !Array.isArray(d.reviews) || d.reviews.length === 0) return;
+
+    grid.textContent = '';
+    d.reviews.slice(0, 3).forEach((r) => {
+      if (!r || !r.name || !r.text) return;
+      const card = document.createElement('article');
+      card.className = 'review-card';
+
+      const stars = document.createElement('div');
+      stars.className = 'review-stars';
+      const n = Math.round(r.rating) || 5;
+      stars.setAttribute('aria-label', n + ' av 5 stjärnor');
+      stars.textContent = '★★★★★'.slice(0, n);
+
+      const text = document.createElement('p');
+      text.className = 'review-text';
+      text.textContent = r.text;
+
+      const foot = document.createElement('footer');
+      foot.className = 'review-foot';
+      const name = document.createElement('span');
+      name.className = 'review-name';
+      name.textContent = r.name;
+      foot.appendChild(name);
+      if (r.date) {
+        const time = document.createElement('time');
+        time.className = 'review-date';
+        time.dateTime = r.date;
+        try {
+          time.textContent = new Date(r.date).toLocaleDateString('sv-SE', { month: 'long', year: 'numeric' });
+        } catch { /* datum är kosmetiskt */ }
+        foot.appendChild(time);
+      }
+
+      card.appendChild(stars);
+      card.appendChild(text);
+      card.appendChild(foot);
+      grid.appendChild(card);
+    });
+
+    if (grid.children.length) wrap.hidden = false;
+
+    const markEl = document.querySelector('[data-reviews-mark]');
+    const totEl = document.querySelector('[data-reviews-count]');
+    if (markEl && totEl && Number.isInteger(d.reviewsTotal) && d.reviewsTotal > 0) {
+      totEl.textContent = String(d.reviewsTotal);
+      markEl.hidden = false;
+    }
   }
 
   // ---- Utbytbara bilder ----

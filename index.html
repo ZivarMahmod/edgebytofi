@@ -262,11 +262,20 @@
             <div><span class="mark-num"><span data-rating-value>5,0</span>★</span><span class="mark-label">snittbetyg</span></div>
             <div>
               <a class="mark-link" href="https://www.bokadirekt.se/places/edge-by-tofi-136651" target="_blank" rel="noopener noreferrer" aria-label="Betyg på Bokadirekt">
-                <span class="mark-num" data-rating-count>12</span><span class="mark-label">betyg</span>
+                <span class="mark-num" data-rating-count>21</span><span class="mark-label">betyg</span>
               </a>
+            </div>
+            <div data-reviews-mark hidden>
+              <span class="mark-num" data-reviews-count>–</span><span class="mark-label">recensioner</span>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Omdömen — fylls av JS från /api/rating, roteras var 3:e dag -->
+      <div class="wrap reviews-wrap" data-reviews hidden>
+        <p class="reviews-eyebrow">— Vad kunderna säger</p>
+        <div class="reviews-grid"></div>
       </div>
     </section>
 
@@ -294,6 +303,8 @@
           <div class="plats-block">
             <p class="plats-label">Kontakt</p>
             <p class="plats-value">
+              <a href="mailto:info@edgebytofi.se">info@edgebytofi.se</a><br>
+              <a href="tel:+46729568157">072-956 81 57</a><br>
               <a href="https://instagram.com/edgebytofi" target="_blank" rel="noopener noreferrer">Instagram @edgebytofi</a>
             </p>
           </div>
@@ -339,6 +350,8 @@
       <div class="footer-col">
         <p class="footer-label">Kontakt</p>
         <p>
+          <a href="mailto:info@edgebytofi.se">info@edgebytofi.se</a><br>
+          <a href="tel:+46729568157">072-956 81 57</a><br>
           <a href="https://instagram.com/edgebytofi" target="_blank" rel="noopener noreferrer">Instagram @edgebytofi</a>
         </p>
       </div>
@@ -368,6 +381,12 @@
       ['4. Montserrat + Inter', '"Montserrat", sans-serif', '"Inter", sans-serif', 'Montserrat:wght@400;500;600&family=Inter:ital,wght@0,300;0,400;0,500;1,400'],
       ['5. Oswald + Source Sans 3', '"Oswald", sans-serif', '"Source Sans 3", sans-serif', 'Oswald:wght@400;500&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;1,400'],
       ['6. Marcellus + Cormorant (gamla)', '"Marcellus", serif', '"Cormorant Garamond", Georgia, serif', 'Marcellus&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400'],
+      ['7. Comic Sans', '"Comic Sans MS", "Comic Neue", cursive', '"Comic Sans MS", "Comic Neue", cursive', 'Comic+Neue:ital,wght@0,400;0,700;1,400'],
+      ['8. Bebas Neue + Nunito Sans', '"Bebas Neue", sans-serif', '"Nunito Sans", sans-serif', 'Bebas+Neue&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;1,400'],
+      ['9. Abril Fatface + Poppins', '"Abril Fatface", serif', '"Poppins", sans-serif', 'Abril+Fatface&family=Poppins:ital,wght@0,300;0,400;0,500;1,400'],
+      ['10. DM Serif + DM Sans', '"DM Serif Display", serif', '"DM Sans", sans-serif', 'DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400'],
+      ['11. Fraunces + Work Sans', '"Fraunces", serif', '"Work Sans", sans-serif', 'Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=Work+Sans:ital,wght@0,300;0,400;0,500;1,400'],
+      ['12. Libre Baskerville + Karla', '"Libre Baskerville", serif', '"Karla", sans-serif', 'Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;1,400'],
     ];
     const loaded = new Set();
     const panel = document.createElement('div');
