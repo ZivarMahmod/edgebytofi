@@ -55,7 +55,13 @@
 
 /* ---------- Reset / base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* Klipp horisontellt spill (fixerad mobilmeny utanför skärm, hero-zoom,
+     dekorramar) utan att skapa en scroll-container — sticky headern lever kvar. */
+  overflow-x: clip;
+}
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -66,6 +72,7 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 img, svg, iframe { display: block; max-width: 100%; height: auto; }
 iframe { border: 0; }
@@ -956,6 +963,29 @@ h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.05; }
 
   .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
   .footer-base { flex-direction: column; align-items: flex-start; gap: .5rem; }
+
+  /* Långa adresser/länkar ska brytas i stället för att spränga layouten. */
+  .plats-value a,
+  .footer-col a { word-break: break-word; overflow-wrap: anywhere; }
+}
+
+/* ---------- Smala mobiler ---------- */
+@media (max-width: 480px) {
+  /* Håll ihop menyrader så namn + Boka-knapp inte krockar. */
+  .menu-row { flex-wrap: wrap; row-gap: .35rem; }
+  .menu-boka { margin-left: 0; }
+
+  /* Betygsmarkeringarna staplas snyggt i stället för att tryckas ihop. */
+  .about-marks { flex-wrap: wrap; gap: 1.25rem 1.5rem; }
+  .about-marks > div { flex-basis: calc(50% - .75rem); }
+
+  /* Hero-kontrollerna får plats även på riktigt små skärmar. */
+  .hero-controls { gap: .6rem; }
+  .hero-dot { width: 20px; }
+  .hero-dot.is-active { width: 30px; }
+
+  /* Öppettider håller sig läsbara utan att svämma över. */
+  .hours > div { gap: .75rem; }
 }
 
 /* ---------- Reduced motion ---------- */
